@@ -1,0 +1,21 @@
+{
+    "sign": {
+        "key":"./key.jks",
+        "password":"000000",
+        "build-tools":"26.0.3"
+    },
+    "meta-data": {
+        "ch1-demo" : {
+            "meta-data": [
+                {"android:name":"UMENG_CHANNEL"},
+                {"android:name":"MY_CHANNEL"}
+            ]
+        },
+        "ch2-demo" : {
+            "meta-data": [
+                {"android:name":"UMENG_CHANNEL"},
+                {"android:name":"MY_CHANNEL"}
+            ]
+        }
+    }
+}
