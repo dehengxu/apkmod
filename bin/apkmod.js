@@ -22,11 +22,14 @@ program
 
 program.parse(process.argv)
 
+var configPath = (program.config == undefined ? "./config.json" : program.config)
+
+console.log("apk :" + program.apk + ", config :" + program.config)
+console.log("config :" + configPath)
+
 var parsedPath = path.parse(program.apk)
 var channelName
-var config = JSON.parse(fs.readFileSync(program.config))
-
-console.log("path :" + program.path + ", config :" + program.config)
+var config = JSON.parse(fs.readFileSync(configPath))
 
 if (program.meta) {
 	console.log("meta :" + program.meta)
@@ -142,7 +145,7 @@ decompile(program.apk)
 .then(function() {
     var manifestPath = targetDir + "/AndroidManifest.xml"
     console.log('manifestpath :' + manifestPath)
-    parseManifest(manifestPath, program.config)
+    parseManifest(manifestPath, configPath)
 })
 .catch(function (error) {
 
