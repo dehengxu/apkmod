@@ -13,12 +13,33 @@ var targetDir=".";
 
 var program = require('commander')
 
+var defaultConfig = {
+    "sign": {
+        "key":"./key.jks",
+        "password":"000000",
+        "build-tools":"26.0.3"
+    },
+    "meta-data": {
+        "ch1-demo" : {
+            "meta-data": [
+                {"android:name":"UMENG_CHANNEL"},
+                {"android:name":"MY_CHANNEL"}
+            ]
+        },
+        "ch2-demo" : {
+            "meta-data": [
+                {"android:name":"UMENG_CHANNEL"},
+                {"android:name":"MY_CHANNEL"}
+            ]
+        }
+    }
+}
+
 program
 .version('0.1.0')
-// .command('package <params>')
-.option('--init', 'Create one config.json file in current path.')
 .option('--apk <apk>', 'Target APK file.')
 .option('--config <conf>', 'config.json file.')
+.option('--init [f]', 'Create one config.json file in current path.')
 // .option('--path <path>', 'AndroidManifest.xml file path or container directory.')
 .parse(process.argv)
 
@@ -28,7 +49,8 @@ var isInit = program.init ? true : false
 
 if (isInit) {
     //Todo: Init a config.json file.
-    console.log("program init :", isInit)
+    console.log("program init :", program.init )
+    initConfig(program.init === 'f')
 }else {
 
     var configPath = (program.config == undefined ? "./config.json" : program.config)
@@ -57,6 +79,21 @@ if (isInit) {
         console.error(error)
     });
     
+}
+
+
+/**
+ * Init config.json file in current path.
+ */
+function initConfig(isForce) {
+    console.log("init config.json")
+    var jsonStr = JSON.stringify(defaultConfig)
+    if (!fs.existsSync('./config.json') || isForce) {
+        console.log("Overwrite file ./config.json.")
+        fs.writeFileSync("./config.json", jsonStr)
+    }else {
+        console.log("./config.json already exist.")
+    }
 }
 
 /**
