@@ -12,61 +12,79 @@ var env = process.env;
 var targetDir=".";
 
 var program = require('commander')
-program.version('v0.0.1')
 
 program
+.version('0.1.0')
+// .command('package <params>')
+.option('--init', 'Create one config.json file in current path.')
 .option('--apk <apk>', 'Target APK file.')
 .option('--config <conf>', 'config.json file.')
-
 // .option('--path <path>', 'AndroidManifest.xml file path or container directory.')
+.parse(process.argv)
 
-program.parse(process.argv)
+var pInit = program.command('init')
 
-var configPath = (program.config == undefined ? "./config.json" : program.config)
+var isInit = program.init ? true : false
 
-console.log("apk :" + program.apk + ", config :" + program.config)
-console.log("config :" + configPath)
+if (isInit) {
+    //Todo: Init a config.json file.
+    console.log("program init :", isInit)
+}else {
 
-var parsedPath = path.parse(program.apk)
-var channelName
-var config = JSON.parse(fs.readFileSync(configPath))
+    var configPath = (program.config == undefined ? "./config.json" : program.config)
 
-if (program.meta) {
-	console.log("meta :" + program.meta)
-}
-if (program.attribute) {
-	console.log("attribute :" + program.attribute)
-}
-// ---
+    console.log("apkPath :" + program.apk)
+    console.log("configPath :" + configPath)
 
-function child_process_handler(error, stdout, stderr) {
-    if (error) {
-        console.log(error)
-    }else {
-        console.log(stdout)
+    var parsedPath = path.parse(program.apk)
+    var channelName
+    var config = JSON.parse(fs.readFileSync(configPath))
+
+    if (program.meta) {
+        console.log("meta :" + program.meta)
     }
+    if (program.attribute) {
+        console.log("attribute :" + program.attribute)
+    }
+
+    decompile(program.apk)
+    .then(function(v) {
+        var manifestPath = targetDir + "/AndroidManifest.xml"
+        console.log('manifestpath :' + manifestPath)
+        parseManifest(manifestPath, configPath)
+    })
+    .catch(function (error) {
+        console.error(error)
+    });
+    
 }
 
+/**
+ * 反编译 APK
+ * @param {*} apkfile
+ */
 function decompile(apkfile) {
-    console.log("decompile")
-
+    console.log("decompile file :" + apkfile)
     return new Promise(function(resolve, reject) {
         targetDir = path.dirname(apkfile) + '/' + parsedPath.name
         console.log("targetDir :" + targetDir)
         fileName = parsedPath.base
         console.log("file :" + targetDir)
 
-        child_process.exec('apktool d -f ' + apkfile, function(error, stdout, stderr) {
+        child_process.exec('apktool d -o ' + targetDir + ' -f ' + apkfile, function(error, stdout, stderr) {
             if (error) {
                 reject(error);
             }else {
-                resolve();                
+                resolve("successed.");                
             }
         })
     });
-
 }
 
+/**
+ * 重编译 APK
+ * @param {*} path 
+ */
 function recompile(path) {
     return new Promise(function (resolve, reject) {
         var newApk = targetDir+'/dist/' + parsedPath.name + '-' + channelName + '.apk'
@@ -76,6 +94,11 @@ function recompile(path) {
     })
 }
 
+/**
+ * APK 签名
+ * @param {apk 路径} apk
+ * @param {生成 APK 路径} dest 
+ */
 function signAPK(apk, dest) {
     console.log("signing " + apk + " to " + dest)
     var sign = config['sign'];
@@ -88,7 +111,13 @@ function signAPK(apk, dest) {
     child_process.execSync(cmd)
 }
 
+/**
+ * 解析 Manifest 文件, 根据配置文件修改 Manifest.xml 中的对应字段值
+ * @param {maifest 路径} manifestPath 
+ * @param {配置文件路径} configPath 
+ */
 function parseManifest(manifestPath, configPath) {
+    console.log("parseManifest ...", targetFile)
     // Load xml file.
     var targetFile = manifestPath
     var xmlFile = fs.readFileSync(targetFile);
@@ -101,6 +130,7 @@ function parseManifest(manifestPath, configPath) {
 	var json = JSON.parse(parser.toJson(xmlFile))
     var meta_datas = json.manifest.application['meta-data']
 
+    //Iterate all configs.
     for (chName in metaDataConfigs) {
         if (chName) {
             channelName = chName
@@ -140,13 +170,3 @@ function parseManifest(manifestPath, configPath) {
         recompile(targetDir)
     }
 }
-
-decompile(program.apk)
-.then(function() {
-    var manifestPath = targetDir + "/AndroidManifest.xml"
-    console.log('manifestpath :' + manifestPath)
-    parseManifest(manifestPath, configPath)
-})
-.catch(function (error) {
-
-});
