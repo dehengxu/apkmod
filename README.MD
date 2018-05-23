@@ -23,8 +23,16 @@ You can specify which `android:name` should replace new value or with default va
 
 ## Example:
 
+### init config.json
+
+`apkmod --init`
+
+This will create a config.json template in current path.
+
+
+### modify config.json
+
 ```
-# config.json
 
 {
     "sign": {
@@ -48,10 +56,16 @@ You can specify which `android:name` should replace new value or with default va
     }
 }
 
-# execute:
-apkmod --config ./config.json --apk app-debug.apk
-
 ```
+
+### execute apkmod
+
+`apkmod --config ./config.json --apk app-debug.apk`
+
+or
+
+`apkmod --apk app-debug.apk` use default config.json path which is your current path.
+
 
 ## future
 

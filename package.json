@@ -11,7 +11,7 @@
   },
   "keywords": [],
   "author": "dehengxu@outlook.com",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "commander": "^2.15.1",
     "promise": "^8.0.1",
