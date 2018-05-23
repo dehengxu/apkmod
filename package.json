@@ -10,7 +10,7 @@
     "apkmod": "./bin/apkmod.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "dehengxu@outlook.com",
   "license": "ISC",
   "dependencies": {
     "commander": "^2.15.1",
